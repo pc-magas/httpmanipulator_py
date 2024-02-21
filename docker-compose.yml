@@ -1,0 +1,22 @@
+version: "3.1"
+
+services:
+  python:
+    build:
+      context: .
+      dockerfile: ./docker/DockerfileDev
+    environment:
+      APP_UID: 1000
+      APP_GID: 1000
+    networks:
+      frontent:
+        ipv4_address: 10.0.0.2
+    volumes:
+      - ./src:/opt/manipulator/src
+      - ./docker/settings.conf:/etc/manipulator/settings.conf
+
+networks:
+  frontent:
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
