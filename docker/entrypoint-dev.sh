@@ -6,4 +6,5 @@ groupmod -g ${APP_GID} manipulator
 chown -R manipulator:manipulator /opt/manipulator
 chown manipulator:manipulator /var/log/manipulator
 
+su -c "pip install -r requirements.txt" manipulator
 su -c "python /opt/manipulator/src/main.py" manipulator

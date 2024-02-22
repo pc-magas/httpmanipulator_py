@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 
-"""
-1. Read settings
-2. Bootstrap Manupilator
-3. Bootstrap Control Panel
-
-"""
 import multiprocessing
 from manipulator.http_socket_server import SocketServer
+# from common.services.db import apply_migrations
 
 if __name__ == "__main__":
 
@@ -15,6 +10,10 @@ if __name__ == "__main__":
     host = "0.0.0.0"
     port = 80
     max_threads = 5
+
+    print("Setting UP Db")
+
+    # apply_migrations("sqlite:///memory")
 
     server = SocketServer(host, port, max_threads)
     server_process = multiprocessing.Process(target=server.start)
