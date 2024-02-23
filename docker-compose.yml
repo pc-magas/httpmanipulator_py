@@ -12,9 +12,10 @@ services:
       frontent:
         ipv4_address: 10.0.0.2
     volumes:
-      - .:/opt/manipulator
+      - .:/home/manipulator/app
       - ./docker/settings.conf:/etc/manipulator/settings.conf
-      - ./volumes/home:/home/manipulator
+      - ./volumes/pip:/home/manipulator/.cache/pip
+      - ./volumes/db:/home/manipulator/db
 
 networks:
   frontent:

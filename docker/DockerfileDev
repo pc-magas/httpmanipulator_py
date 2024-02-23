@@ -3,17 +3,19 @@ FROM python
 COPY --chown=root:root ./docker/entrypoint-dev.sh /usr/bin/entrypoint.sh
 
 RUN chmod 544 /usr/bin/entrypoint.sh &&\
-    mkdir -p /opt/manipulator/db &&\
     mkdir /etc/manipulator &&\
     mkdir /var/log/manipulator &&\
     useradd -ms /bin/bash  manipulator &&\
+    mkdir /home/manipulator/db &&\
+    mkdir /home/manipulator/app &&\
     chown manipulator:manipulator /opt/manipulator &&\
     chown manipulator:manipulator /var/log/manipulator
 
-VOLUME /etc/manipulator
+RUN echo 'if [ -d "/home/manipulator/venv" ]; then\n  source /opt/manipulator/venv/bin/activate\nfi' >> /home/manipulator/.bashrc
+
 VOLUME /opt/manipulator
 VOLUME /home/manipulator
 
-WORKDIR /opt/manipulator
+WORKDIR /home/manipulator
 
 ENTRYPOINT [ "/usr/bin/entrypoint.sh" ]
