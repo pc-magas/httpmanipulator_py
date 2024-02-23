@@ -12,6 +12,7 @@ RUN chmod 544 /usr/bin/entrypoint.sh &&\
 
 VOLUME /etc/manipulator
 VOLUME /opt/manipulator
+VOLUME /home/manipulator
 
 WORKDIR /opt/manipulator
 
