@@ -2,7 +2,7 @@
 
 import multiprocessing
 from manipulator.http_socket_server import SocketServer
-# from common.services.db import apply_migrations
+from services.db import create_db
 
 if __name__ == "__main__":
 
@@ -11,10 +11,9 @@ if __name__ == "__main__":
     port = 80
     max_threads = 5
 
-    print("Setting UP Db")
+    db_conn = create_db("/home/manipulator/db/app.db")
 
-    # apply_migrations("sqlite:///memory")
-
+    
     server = SocketServer(host, port, max_threads)
     server_process = multiprocessing.Process(target=server.start)
     server_process.start()

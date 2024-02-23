@@ -10,9 +10,9 @@ RUN chmod 544 /usr/bin/entrypoint.sh &&\
     mkdir /home/manipulator/app &&\
     chown manipulator:manipulator /var/log/manipulator
 
-RUN echo 'if [ -d "/home/manipulator/venv" ]; then\n  source /home/manipulator/venv/bin/activate\nfi' >> /home/manipulator/.bashrc
+RUN cp /etc/skel/.bashrc /home/manipulator/.bashrc &&\
+    echo 'if [ -d "/home/manipulator/venv" ]; then\n  source /home/manipulator/venv/bin/activate\nfi' >> /home/manipulator/.bashrc
 
-VOLUME /opt/manipulator
 VOLUME /home/manipulator
 
 WORKDIR /home/manipulator/app

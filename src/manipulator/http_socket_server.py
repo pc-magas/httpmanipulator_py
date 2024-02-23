@@ -9,6 +9,7 @@ class SocketServer:
     """
 
     def __init__(self,host,port,max_threads):
+        print("Create Server For Http")
         self.host = host
         self.port = port
         self.server_socket = self.__initSocket()
