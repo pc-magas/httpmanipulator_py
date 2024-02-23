@@ -2,7 +2,7 @@
 
 import multiprocessing
 from manipulator.http_socket_server import SocketServer
-from services.db.db import create_db
+from services.db import create_db
 
 if __name__ == "__main__":
 
