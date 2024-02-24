@@ -1,5 +1,7 @@
 import re
 import os
+import sys
+import importlib
 
 def extract_first_digit(filename):
     match = re.search(r'^\d+', filename)
@@ -23,7 +25,7 @@ class MigrationRunner:
         
         print("Run Sql migration file "+sqlFile)
         
-        full_sqlFile = os.path.join(migrations_path,sqlFile)
+        full_sqlFile = os.path.join(self.migrations_path,sqlFile)
 
         with open(full_sqlFile, 'r') as script_file:
             sql_script = script_file.read()
@@ -42,24 +44,27 @@ class MigrationRunner:
 
         conn = self.conn
         migrations_path=self.migrations_path
-        
+
         print("Execute Python Migration "+pythonScript)
-        try:
-            # Import the module dynamically
-            full_pythonScript = os.path.join(migrations_path,pythonScript)
-            module_name = full_pythonScript.replace(".py","",full_pythonScript)  # Remove the file extension
-            migration_module = __import__(module_name)
+        module_name = "database.migrations."+pythonScript.replace(".py","")
+        migration_module = importlib.import_module(module_name)
 
-            # Call the run_migration function (or another named function) from the module
-            if hasattr(migration_module, 'run_migration'):
-                migration_module.up(conn)
-                print("Execution of " + pythonScript + " completed successfully")
-            else:
-                print(f"Error: {pythonScript} does not define a 'run_migration' function")
-        except Exception as e:
-            print("Error executing " + pythonScript + ": " + str(e))
-
-
+        if hasattr(migration_module, 'up'):
+            cursor = conn.cursor()
+            try:
+                conn.execute('BEGIN')
+                migration_module.up(cursor)
+                cursor.execute("INSERT INTO migrations(migration_filename) VALUES (?)",[(pythonScript)])
+                conn.commit()
+            except Exception as e:
+                conn.commit()
+                raise e
+            finally:
+                cursor.close()
+            print("Execution of " + pythonScript + " completed successfully")
+        else:
+            raise Exception(f"Error: {pythonScript} does not define a 'up' function")
+        
     def __createMigrationsTable(self):
         conn = self.conn
 
@@ -94,6 +99,9 @@ class MigrationRunner:
         cur = conn.cursor()
 
         for filename in sorted_files:
+
+            if(filename == "__init__.py"):
+                continue
 
             res = cur.execute(sql,[(filename)])
             filename_in_db = res.fetchone()
