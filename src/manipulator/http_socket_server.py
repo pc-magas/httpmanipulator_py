@@ -2,6 +2,7 @@ import socket
 import threading
 import queue
 import time
+import ssl
 
 class SocketServer:
     """
@@ -12,19 +13,22 @@ class SocketServer:
         print("Create Server For Http")
         self.host = host
         self.port = port
-        self.server_socket = self.__initSocket()
+        self.server_socket = self.initSocket()
         self.max_threads = max_threads
         self.request_queue = queue.Queue()        
 
-    def __initSocket(self):
+    def initSocket(self):
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    def postProcessSocket(self,client_socket):
+        return client_socket
 
     def __accept(self):
         self.server_socket.listen(5)
         while True:
-            client_socket, client_address = self.server_socket.accept()    
-            self.request_queue.put((client_socket, client_address))
+            client_socket, client_address = self.server_socket.accept()
+            actual_client_socket = self.postProcessSocket(client_socket)
+            self.request_queue.put((actual_client_socket, client_address))
 
 
     def __handle(self):
@@ -56,7 +60,9 @@ class SocketServer:
 
 
 class TLSSocketServer(SocketServer):
+    def postProcessSocket(self,client_socket):
+        print("Load TLS")
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain(certfile='/etc/manipulator/certs/cert.crt', keyfile='/etc/manipulator/certs/key.key')
+        return context.wrap_socket(client_socket, server_side=True)
 
-    def __initSocket(self):
-        socket = super().__initSocket()
-        # @todo create SSL context        
