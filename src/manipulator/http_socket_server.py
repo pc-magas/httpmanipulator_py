@@ -4,13 +4,6 @@ import queue
 import time
 import ssl
 
-import os,pathlib
-
-path = os.path.join(pathlib.Path(__file__).parent.absolute(),"../../certs")
-certfile = os.path.join(path,"cert.crt")
-keyfile = os.path.join(path,"key.key")
-
-print(path,certfile,keyfile)
 
 class SocketServer:
     """
@@ -79,10 +72,3 @@ class SocketServer:
         self.server_socket.bind((self.host, self.port))
         self.__initThreads()
         self.__accept()
-
-if __name__ == "__main__":
-    host = "127.0.0.1"
-    tls_port=8443
-    max_threads = 5
-    tls_server = SocketServer(host, tls_port, max_threads,True)
-    tls_server.start()
