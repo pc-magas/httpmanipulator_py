@@ -1,32 +1,14 @@
 import socket
 import threading
 import queue
-import time
 import ssl
-
-
-def sni_callback(ssl_socket,server_name,context):
-
-    if server_name is None:
-        print("Loading default cert")
-        context.load_cert_chain(keyfile="/etc/manipulator/certs/key.key",certfile="/etc/manipulator/certs/cert.crt")
-        return None
-    
-    if server_name == 'test.example.com':
-        print("Loading cert1 and key1")
-        context.load_cert_chain(keyfile="/etc/manipulator/certs/key1.key",certfile="/etc/manipulator/certs/cert1.crt")
-    else:
-        print("Loading default cert")
-        context.load_cert_chain(keyfile="/etc/manipulator/certs/key.key",certfile="/etc/manipulator/certs/cert.crt")
-
-    return None
 
 class SocketServer:
     """
         Basic Socket Server in python
     """
 
-    def __init__(self,host,port,max_threads,tls=False):
+    def __init__(self,host,port,max_threads,ssl_context:ssl.SSLContext=None):
         print("Create Server For Http")        
 
         self.host = host
@@ -36,10 +18,9 @@ class SocketServer:
         self.request_queue = queue.Queue()   
 
         self.ssl_context=None
-        if(tls == True):
+        if(ssl_context != None):
             print("Initialise SSL context")        
-            self.ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-            self.ssl_context.sni_callback = sni_callback
+            self.ssl_context = ssl_context
 
     def initSocket(self):
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM)

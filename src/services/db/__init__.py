@@ -11,6 +11,7 @@ def create_db(conn_url):
 
     print("Connecting "+conn_url)
     conn = sqlite3.connect(conn_url)
+    conn.row_factory = sqlite3.Row
     print("Setting Up DB")
     runner = MigrationRunner(conn,migrations_path)
     runner.apply_migrations()
