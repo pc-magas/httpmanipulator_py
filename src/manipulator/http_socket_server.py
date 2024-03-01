@@ -5,6 +5,22 @@ import time
 import ssl
 
 
+def sni_callback(ssl_socket,server_name,context):
+
+    if server_name is None:
+        print("Loading default cert")
+        context.load_cert_chain(keyfile="/etc/manipulator/certs/key.key",certfile="/etc/manipulator/certs/cert.crt")
+        return None
+    
+    if server_name == 'test.example.com':
+        print("Loading cert1 and key1")
+        context.load_cert_chain(keyfile="/etc/manipulator/certs/key1.key",certfile="/etc/manipulator/certs/cert1.crt")
+    else:
+        print("Loading default cert")
+        context.load_cert_chain(keyfile="/etc/manipulator/certs/key.key",certfile="/etc/manipulator/certs/cert.crt")
+
+    return None
+
 class SocketServer:
     """
         Basic Socket Server in python
@@ -23,7 +39,7 @@ class SocketServer:
         if(tls == True):
             print("Initialise SSL context")        
             self.ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-            self.ssl_context.load_cert_chain(certfile=certfile, keyfile=keyfile)
+            self.ssl_context.sni_callback = sni_callback
 
     def initSocket(self):
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
