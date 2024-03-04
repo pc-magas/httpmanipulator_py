@@ -2,6 +2,7 @@ import socket
 import threading
 import queue
 import ssl
+from parser import LineBuffer,LoggableHttpRequest
 
 class SocketServer:
     """
@@ -45,19 +46,29 @@ class SocketServer:
         while True:
             client_socket, address = self.request_queue.get()
             print("Address",address)
-                
-            # Read HTTP Request
-            # Log Http Request
-            # Manipulate Http Request
-            # Forward or respond
+            
+            try:
+                # Read HTTP Request
+                # Log Http Request
+                # Manipulate Http Request
+                # Forward or respond
 
-            content = '<html><body>Hello World</body></html>\r\n'.encode()
-            headers = f'HTTP/1.1 200 OK\r\nContent-Length: {len(content)}\r\nContent-Type: text/html\r\n\r\n'.encode()
-            client_socket.sendall(headers + content)
+                buffer = LineBuffer()
+                request =  HttpRequest(self.db)
+
+                buffer.pushData(client_socket.recv(2048))
+                line = buffer.getLine()
+                if(line is not None):
+                    request.parse(line)
+
+                content = '<html><body>Hello World</body></html>\r\n'.encode()
+                headers = f'HTTP/1.1 200 OK\r\nContent-Length: {len(content)}\r\nContent-Type: text/html\r\n\r\n'.encode()
+                client_socket.sendall(headers + content)
           
-            client_socket.shutdown(socket.SHUT_RDWR)
-            client_socket.close()
-            self.request_queue.task_done()
+            finally:
+                client_socket.shutdown(socket.SHUT_RDWR)
+                client_socket.close()
+                self.request_queue.task_done()
 
 
     def __initThreads(self):
