@@ -10,7 +10,7 @@ class LineBuffer:
     def getLine(self):
         if  b'\r\n' in self.buffer:
             line,sep,self.buffer = self.buffer.partition(b'\r\n')
-            return line
+            return line+sep
         return None
        
 

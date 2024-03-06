@@ -22,8 +22,8 @@ class LineBufferTest(unittest.TestCase):
         buffer.pushData("HTTP/1.1\r")
         self.assertEqual(None,buffer.getLine())
         buffer.pushData("\nHost: example.com\r\n")
-        self.assertEqual("GET /input.php HTTP/1.1",buffer.getLine().decode())
-        self.assertEqual("Host: example.com",buffer.getLine().decode())
+        self.assertEqual("GET /input.php HTTP/1.1\r\n",buffer.getLine().decode())
+        self.assertEqual("Host: example.com\r\n",buffer.getLine().decode())
 
 
 
