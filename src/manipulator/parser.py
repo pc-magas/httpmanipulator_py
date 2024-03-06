@@ -1,14 +1,13 @@
 
 class LineBuffer:
 
-    def __init__(self,sock):
-        self.sock = sock
+    def __init__(self):
         self.buffer = b''
     
-    def pushData(line):
-        self.buffer += data
+    def pushData(self,line):
+        self.buffer += str.encode(line)
     
-    def getLine():
+    def getLine(self):
         if  b'\r\n' in self.buffer:
             line,sep,self.buffer = self.buffer.partition(b'\r\n')
             return line
@@ -26,4 +25,4 @@ class LoggableHttpRequest:
         self.raw=""
     
     def parse(line):
-        
+        return

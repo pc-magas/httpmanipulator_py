@@ -2,7 +2,7 @@ import socket
 import threading
 import queue
 import ssl
-from parser import LineBuffer,LoggableHttpRequest
+from manipulator.parser import LineBuffer,LoggableHttpRequest
 
 class SocketServer:
     """
