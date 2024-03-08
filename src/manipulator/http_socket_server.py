@@ -4,7 +4,7 @@ import queue
 import ssl
 
 from httptools import HttpRequestParser
-from parser import HttpRequestParseHandler
+from parser import HttpParser
 
 class SocketServer:
     """
@@ -56,11 +56,10 @@ class SocketServer:
                 # Manipulate Http Request
                 # Forward or respond
 
-                parser = HttpRequestParser(HttpRequestParseHandler(client_socket))
+                parser = HttpParser(client_socket)
 
                 while True:
                     data = client_socket.recv(1024)
-                    print(data)
                     if not data:
                         print("break")
                         break
