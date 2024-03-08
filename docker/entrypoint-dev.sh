@@ -10,4 +10,4 @@ if [ ! -d "/home/manipulator/venv" ]; then
     su -c "python -m venv /home/manipulator/venv" manipulator
 fi
 
-su -c "source /home/manipulator/venv/bin/activate && pip install -r requirements.txt &&  python /home/manipulator/app/src/main.py" manipulator
+su -c "source /home/manipulator/venv/bin/activate && pip install -r requirements.txt &&  python src/manipulator/http_socket_server.py" manipulator

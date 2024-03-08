@@ -1,28 +1,11 @@
 
-class LineBuffer:
-
-    def __init__(self):
-        self.buffer = b''
+class HttpRequestParseHandler:
     
-    def pushData(self,line):
-        self.buffer += str.encode(line)
-    
-    def getLine(self):
-        if  b'\r\n' in self.buffer:
-            line,sep,self.buffer = self.buffer.partition(b'\r\n')
-            return line+sep
-        return None
-       
+    def __init__(self,client_socket):
+        self.client_socket = client_socket
 
-class LoggableHttpRequest:
-
-    def __init__(self,db):
-        self.headers={} #ParsedHeaderrs
-        self.body="" #Http Body
-        self.version=None
-        self.method=None
-        self.id=None
-        self.raw=""
-    
-    def parse(line):
-        return
+    def on_message_complete(self):
+        print("Hello")
+        content = '<html><body>Hello World</body></html>\r\n'.encode()
+        headers = f'HTTP/1.1 200 OK\r\nContent-Length: {len(content)}\r\nContent-Type: text/html\r\n\r\n'.encode()
+        self.client_socket.sendall(headers + content)

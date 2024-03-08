@@ -2,7 +2,9 @@ import socket
 import threading
 import queue
 import ssl
-from manipulator.parser import LineBuffer,LoggableHttpRequest
+
+from httptools import HttpRequestParser
+from parser import HttpRequestParseHandler
 
 class SocketServer:
     """
@@ -24,8 +26,9 @@ class SocketServer:
             self.ssl_context = ssl_context
 
     def initSocket(self):
-        return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return sock
    
     def __accept(self):
         self.server_socket.listen(5)
@@ -53,18 +56,19 @@ class SocketServer:
                 # Manipulate Http Request
                 # Forward or respond
 
-                buffer = LineBuffer()
-                request =  HttpRequest(self.db)
+                parser = HttpRequestParser(HttpRequestParseHandler(client_socket))
 
-                buffer.pushData(client_socket.recv(2048))
-                line = buffer.getLine()
-                if(line is not None):
-                    request.parse(line)
+                while True:
+                    data = client_socket.recv(1024)
+                    print(data)
+                    if not data:
+                        print("break")
+                        break
+                    parser.feed_data(data)
 
-                content = '<html><body>Hello World</body></html>\r\n'.encode()
-                headers = f'HTTP/1.1 200 OK\r\nContent-Length: {len(content)}\r\nContent-Type: text/html\r\n\r\n'.encode()
-                client_socket.sendall(headers + content)
-          
+            except Exception as e:
+                print(getattr(e, 'message', repr(e)))
+                print(getattr(e, 'message', str(e)))
             finally:
                 client_socket.shutdown(socket.SHUT_RDWR)
                 client_socket.close()
@@ -80,3 +84,7 @@ class SocketServer:
         self.server_socket.bind((self.host, self.port))
         self.__initThreads()
         self.__accept()
+
+if __name__ == "__main__":
+    server  = SocketServer("127.0.0.1",8080,5)
+    server.start()
