@@ -4,7 +4,7 @@ import queue
 import ssl
 
 from httptools import HttpRequestParser
-from parser import HttpParser
+from manipulator.parser import HttpParser
 
 class SocketServer:
     """
@@ -12,7 +12,12 @@ class SocketServer:
     """
 
     def __init__(self,host,port,max_threads,ssl_context:ssl.SSLContext=None):
-        print("Create Server For Http")        
+        self.id='HTTP'
+        if(ssl_context is None):
+            print("Create http Server")        
+        else:
+            self.id='HTTPS'
+            print("create https server")
 
         self.host = host
         self.port = port
@@ -21,9 +26,11 @@ class SocketServer:
         self.request_queue = queue.Queue()   
 
         self.ssl_context=None
+        self.is_ssl = False
         if(ssl_context != None):
             print("Initialise SSL context")        
             self.ssl_context = ssl_context
+            self.is_ssl = True
 
     def initSocket(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,16 +46,16 @@ class SocketServer:
                 if self.ssl_context is not None :
                     print(self.ssl_context)
                     client_socket = self.ssl_context.wrap_socket(client_socket, server_side=True)
-
+                print(self.id+": Queue Client Socket")
                 self.request_queue.put((client_socket, client_address))
             except:
-                print("Error Occured")
+                print(self.id+":Error Occured")
 
 
     def __handle(self):
         while True:
             client_socket, address = self.request_queue.get()
-            print("Address",address)
+            print(self.id+": Address",address)
             
             try:
                 # Read HTTP Request
@@ -56,7 +63,7 @@ class SocketServer:
                 # Manipulate Http Request
                 # Forward or respond
 
-                parser = HttpParser(client_socket)
+                parser = HttpParser(client_socket,self.is_ssl,None)
 
                 while True:
                     data = client_socket.recv(1024)
@@ -84,6 +91,3 @@ class SocketServer:
         self.__initThreads()
         self.__accept()
 
-if __name__ == "__main__":
-    server  = SocketServer("127.0.0.1",8080,5)
-    server.start()

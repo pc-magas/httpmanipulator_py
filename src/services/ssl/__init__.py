@@ -32,12 +32,14 @@ class ContextFactory:
 
     def __sni_callback(self,ssl_socket,server_name,context):
 
+        if(server_name is None):
+            context.load_cert_chain(keyfile=self.default_key,certfile=self.default_crt)
+            return
+        
         wildcard_domain=convertDomainIntoWildcard(server_name)
         extended_wildcard_domain="*."+server_name
 
-        if(server_name is None):
-            context.load_cert_chain(keyfile=self.default_key,certfile=self.default_crt)
-        elif (server_name in self.ssl_dict):
+        if (server_name in self.ssl_dict):
             context.load_cert_chain(keyfile=self.ssl_dict[server_name].key,certfile=self.ssl_dict[server_name].cert)
         elif(wildcard_domain in self.ssl_dict):
             context.load_cert_chain(keyfile=self.ssl_dict[wildcard_domain].key,certfile=self.ssl_dict[wildcard_domain].cert)
