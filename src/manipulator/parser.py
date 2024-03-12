@@ -1,42 +1,72 @@
 import uuid
 from httptools import HttpRequestParser
+
+class HttpRequest:
+    id = uuid.uuid4()
+    method=""
+    body=""
+    headers=dict()
+    path = ""
+    host = ""
+    protocol=""
+    _url=None
+
+    @property
+    def url(self):
+
+        if(self.__url is None):
+            self.protocol+"://"+self.host+self.url
+
+        return self.__url
     
+
+class RequestCookie:
+    name=""
+    value=""
+    httpOnly=False
 
 class HttpParser(HttpRequestParser):
     
-    def __init__(self,client_socket,ssl=False,db=None):
+    def __init__(self,oncomplete=None,ssl=False):
         super().__init__(self)
-        self.db = db
         self.id = None
-       
+        self.oncomplete = oncomplete       
         if ssl :
             self.protocol = 'https'
         else:
             self.protocol='http'
         
-        self.client_socket = client_socket
-    
+        self.requestSerialization = None
+        
+    def on_headers_complete(self):
+        self.requestSerialization.method = self.get_method()
+        print(self.get_method())
+
     def on_message_begin(self):
-        self.id = uuid.uuid4()
-    
+        self.requestSerialization = HttpRequest()
+        self.requestSerialization.protocol = self.protocol
+
     def on_status(self,status):
-        print(self.id)
         print("STATUS: "+status)
     
     def on_header(self,name, value):
-        print(self.id)
-        print("HEADER",name,value)
-    
+        self.requestSerialization.headers[name]=value
+
+        sanitizedHeaderName = name.lower()
+        if(sanitizedHeaderName== 'host'):
+            self.requestSerialization.host = host
+        elif(sanitizedHeaderName == 'cookie'):
+            cookies = value.decode('utf-8').split(",")
+
     def on_url(self,url):
-        print(self.id,'URL',url)
+        self.requestSerialization.path = url
+        print('URL',url)
     
-    def on_body(body):
-        print(self.id,"BODY",body)
+    def on_body(self,body):
+        self.requestSerialization.body = body
+        print("BODY",body)
 
     def on_message_complete(self):
-
-        print("Completed",self.get_http_version())
-
-        content = '<html><body>Hello World</body></html>\r\n'.encode()
-        headers = f'HTTP/1.1 200 OK\r\nContent-Length: {len(content)}\r\nContent-Type: text/html\r\n\r\n'.encode()
-        self.client_socket.sendall(headers + content)
+        print(self.requestSerialization)
+        if self.oncomplete is not None:
+            self.oncomplete(self.requestSerialization)

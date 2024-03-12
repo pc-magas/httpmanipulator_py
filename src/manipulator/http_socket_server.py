@@ -63,7 +63,12 @@ class SocketServer:
                 # Manipulate Http Request
                 # Forward or respond
 
-                parser = HttpParser(client_socket,self.is_ssl,None)
+                def oncomplete(request):
+                    content = '<html><body>Hello World</body></html>\r\n'.encode()
+                    headers = f'HTTP/1.1 200 OK\r\nContent-Length: {len(content)}\r\nContent-Type: text/html\r\n\r\n'.encode()
+                    client_socket.sendall(headers + content)
+
+                parser = HttpParser(oncomplete,self.is_ssl)
 
                 while True:
                     data = client_socket.recv(1024)

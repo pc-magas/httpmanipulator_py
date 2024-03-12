@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS certs (
             );
 
             CREATE TABLE requests (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id STRING PRIMARY KEY,
                 method TEXT not null,
                 domain TEXT not null,
                 path TEXT not null,
