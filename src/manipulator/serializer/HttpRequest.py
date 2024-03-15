@@ -72,11 +72,15 @@ class HttpRequest:
         self.__headers.append(headerSerialization)
         sanitizedHeaderName=name.lower()
         if(sanitizedHeaderName == 'host'):
-            self.__serializeHost(value)
+            try:
+                self.__serializeHost(value)
+            except Exception as e:
+                print("SSSS",e)
+                raise e
         elif(sanitizedHeaderName == 'cookie'):
             self.__serializeCookies(headerSerialization.id,value)
         elif(sanitizedHeaderName == 'authorization'):
-            self.__analyzeAuthorization(value,id,value)
+            self.__analyzeAuthorization(value,headerSerialization.id,value)
 
     def __analyzeAuthorization(self,id,value):
         self.__authorizationHeaderId=id
@@ -93,7 +97,7 @@ class HttpRequest:
             cookievalues = cookie.split("=")
             self.__cookies.append(dict(name=cookievalues[0],value=cookievalues[1],header_id=header_id))
 
-    def __serializeHost(selt,host):
+    def __serializeHost(self,host):
         host = host.split(":")
         self.host = host[0]
 
