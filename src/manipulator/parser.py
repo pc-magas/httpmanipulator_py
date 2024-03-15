@@ -50,4 +50,11 @@ class HttpParser(HttpRequestParser):
 
     def on_message_complete(self):
         if self.oncomplete is not None:
+            print(self.requestSerialization.toDict())
+            print(self.requestSerialization.headers)
+            print(self.requestSerialization.cookies)
+            try:
+                print(self.requestSerialization.url)
+            except Exception as e:
+                print(e)
             self.oncomplete(self.requestSerialization)

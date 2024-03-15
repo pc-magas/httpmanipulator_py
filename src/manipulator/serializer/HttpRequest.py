@@ -8,7 +8,9 @@ class HttpRequest:
     method=""
     body=""
     __path = ""
+    __pathDirty=""
     host = ""
+    __port=None
     protocol=""
     
     __username=None
@@ -16,8 +18,6 @@ class HttpRequest:
     __authorizationType=None
     __authorizationHeaderId = None
 
-    __port=None
-    _url=None
 
     __cookies=list()
     __headers=list()
@@ -34,6 +34,7 @@ class HttpRequest:
     @path.setter
     def path(self,value):
         value = value.decode('utf-8')
+        self.__pathDirty = value
         results = urlparse(value)
         self.__path = results.path
 
@@ -45,9 +46,8 @@ class HttpRequest:
 
     @property
     def url(self):
-        if(self.__url is None):
-            self.protocol+"://"+self.host+self.url
-        return self.__url
+        host = self.host+(lambda port:""if port is None else str(port))(self.__port)
+        return self.protocol+"://"+host+self.__pathDirty
 
     @property
     def headers(self):
@@ -105,4 +105,8 @@ class HttpRequest:
             self.__port = int(host[1])
 
     def toDict(self):
-        return self.__dict__
+        try:
+            return self.__dict__
+        except Exception as e:
+            print(e)
+            raise e

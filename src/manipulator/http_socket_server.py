@@ -81,6 +81,7 @@ class SocketServer:
                 print(getattr(e, 'message', repr(e)))
                 print(getattr(e, 'message', str(e)))
             finally:
+                print("CLose Socket")
                 client_socket.shutdown(socket.SHUT_RDWR)
                 client_socket.close()
                 self.request_queue.task_done()
