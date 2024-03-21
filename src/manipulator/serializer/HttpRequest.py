@@ -28,6 +28,8 @@ class HttpRequest:
         body=list()
     )
 
+    rawRequest=None
+
     @property
     def path(self):
         return self.__path

@@ -52,7 +52,7 @@ class HttpParser(HttpRequestParser):
         self.requestSerialization.body = body
 
     def on_message_complete(self):
-        print(self.buffer)
+        self.requestSerialization.rawRequest=self.buffer
         self.buffer=b""
         if self.oncomplete is not None:
             self.oncomplete(self.requestSerialization)
