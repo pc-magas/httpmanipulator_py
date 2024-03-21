@@ -1,4 +1,4 @@
-from manipulator.serializer.HttpRequest import HttpRequest
+from src.manipulator.serializer.HttpRequest import HttpRequest
 from httptools import HttpRequestParser
 
 class HttpParser(HttpRequestParser):
@@ -13,10 +13,14 @@ class HttpParser(HttpRequestParser):
             self.protocol='http'
         
         self.requestSerialization = None
-        
+        self.buffer = b""
+
+    def feed_data(self,data):
+        self.buffer+=data
+        super().feed_data(data)
+
     def on_headers_complete(self):
         self.requestSerialization.method = self.get_method()
-        print(self.get_method())
 
     def on_message_begin(self):
         try:
@@ -39,22 +43,16 @@ class HttpParser(HttpRequestParser):
     def on_url(self,url):
         try:
             self.requestSerialization.path = url
-            print('URL',url)
         except Exception as e:
             print(e)
             raise e
     
     def on_body(self,body):
-        self.requestSerialization.body = body
         print("BODY",body)
+        self.requestSerialization.body = body
 
     def on_message_complete(self):
+        print(self.buffer)
+        self.buffer=b""
         if self.oncomplete is not None:
-            print(self.requestSerialization.toDict())
-            print(self.requestSerialization.headers)
-            print(self.requestSerialization.cookies)
-            try:
-                print(self.requestSerialization.url)
-            except Exception as e:
-                print(e)
             self.oncomplete(self.requestSerialization)

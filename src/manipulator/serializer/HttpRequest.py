@@ -1,12 +1,13 @@
 import uuid
 import base64
 from urllib.parse import urlparse,parse_qs
+import inspect
 
 class HttpRequest:
     id =uuid.uuid4()
     
-    method=""
-    body=""
+    __method=""
+    __body=b""
     __path = ""
     __pathDirty=""
     host = ""
@@ -34,9 +35,26 @@ class HttpRequest:
     @path.setter
     def path(self,value):
         value = value.decode('utf-8')
-        self.__pathDirty = value
-        results = urlparse(value)
+        self.__pathDirty+=value
+        results = urlparse(self.__pathDirty)
         self.__path = results.path
+    
+    @property
+    def method(self):
+        return self.__method
+
+    @method.setter
+    def method(self,value):
+        self.__method = value.decode('utf-8')
+
+
+    @property
+    def body(self):
+        return self.__body
+    
+    @body.setter
+    def body(self,value):
+        self.__body+=value
 
     @property
     def port(self):
@@ -46,7 +64,7 @@ class HttpRequest:
 
     @property
     def url(self):
-        host = self.host+(lambda port:""if port is None else str(port))(self.__port)
+        host = self.host+(lambda port:""if port is None or port not in (80,443) else str(port))(self.__port)
         return self.protocol+"://"+host+self.__pathDirty
 
     @property
@@ -58,7 +76,6 @@ class HttpRequest:
         return self.__cookies
 
     def setheader(self,name,value):
-        
         name = name.decode('utf-8')
         value = value.decode('utf-8')
 
@@ -75,7 +92,6 @@ class HttpRequest:
             try:
                 self.__serializeHost(value)
             except Exception as e:
-                print("SSSS",e)
                 raise e
         elif(sanitizedHeaderName == 'cookie'):
             self.__serializeCookies(headerSerialization.id,value)
@@ -100,8 +116,7 @@ class HttpRequest:
     def __serializeHost(self,host):
         host = host.split(":")
         self.host = host[0]
-
-        if host[1] is not None:
+        if len(host) == 2:
             self.__port = int(host[1])
 
     def toDict(self):
